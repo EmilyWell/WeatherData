@@ -1,64 +1,46 @@
-import csv
-import codecs
-import urllib.request
-import sys
+import requests
+import pandas as pd
+import json
+import numpy as np
+from datetime import datetime
+import sqlite3
+import sqlalchemy
+from sqlalchemy.orm import sessionmaker
 
-# Project from www.visualcrossing.com
+TOKEN = 'RmlNdmZScvGusDeGMRjQGNMDdKxhKdJv'
+STATION_ID = 'GHCND:USW00023129'
+DATABASE_LOCATION = "sqlite:///WeatherData.db"
 
-BaseURL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/'
+dates_temp = []
+dates_prcp = []
+temps = []
+prcp = []
 
-print('')
-print(' - Requesting weather for: ', sys.argv[1])
+for year in range(2016, 2018):
+    year = str(year)
+    print('retreiving ' + year + ' data')
 
+    # make the api call
+    r = requests.get(
+        'https://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&datatypeid=TAVG&limit=1000&stationid=GHCND:USW00023129&startdate=' + year + '-01-01&enddate=' + year + '-12-31',
+        headers={'token': TOKEN})
+    # load the api response as a json
+    d = json.loads(r.text)
 
-Location = '&location=' + urllib.parse.quote(sys.argv[1])
+ #   json.loads("[" +
+  #             f.read().replace("}\n{", "},\n{") +
+   #            "]")
 
-WeatherQueryType = sys.argv[2].upper()
+    # get all items in the response which are average temperature readings
+  #  avg_temps = [item for item in d['results'] if item['datatype'] == 'TAVG']
+    # get the date field from all average temperature readings
+  #  dates_temp += [item['date'] for item in avg_temps]
+    # get the actual average temperature from all average temperature readings
+  #  temps += [item['value'] for item in avg_temps]
 
-QueryKey = '&key' + sys.argv[3]
+    #initialize dataframe
+   # df_temp = pd.DataFrame()
 
-HistFromDate = sys.argv[4]
-HistToDate = sys.argv[5]
-
-if WeatherQueryType == 'FORECAST':
-    print(' - Fetching forecast data')
-    QueryTypeParams = 'forecast?&aggregateHours=24$unitGroup=us&shortColumnNames=false'
-else:
-    print(' - Fetching historical data: ',HistFromDate, '-', HistToDate)
-
-QueryDate = '&startDateTime=' + HistFromDate + 'T00:00:00&endDateTime=' + HistToDate + 'T00:00:00'
-QueryTypeParams = 'history?&aggregateHours=24&unitGroup=us&dayStartTime=0:0:00&dayEndTime=0:0:00' + QueryDate
-
-URL = BaseURL + QueryTypeParams + Location + QueryDate
-
-print(' - Running query URL: ', URL)
-print()
-
-CSVBytes = urllib.request.urlopen(URL)
-CSVText = csv.reader(codecs.iterdecode(CSVBytes, 'utf-8'))
-
-RowIndex = 0
-
-for Row in CSVText:
-    if RowIndex == 0:
-        FirstRow = Row
-    else:
-        print('Weather in ', Row[0], ' on ', Row[1])
-
-        ColIndex = 0
-        for Col in Row:
-            if ColIndex >= 4:
-                print('   ', FirstRow[ColIndex], ' = ', Row[ColIndex])
-            ColIndex += 1
-    RowIndex += 1
-
-
-if RowIndex == 0:
-    print('Sorry, but it appears that there was an error connecting to the weather server.')
-    print('Please check your network connection and try again..')
-
-if RowIndex == 1:
-    print('Sorry, but it appears that there was an error retrieving the weather data.')
-    print('Error: ', FirstRow)
-
-print()
+    #populate date and average temperature fields (cast string date to datetime and convert temperature from tenths of Celsius to Fahrenheit)
+   # df_temp['date'] = [datetime.strptime(d, "%Y-%m-%dT%H:%M:%S") for d in dates_temp]
+   # df_temp['avgTemp'] = [float(v)/10.0*1.8 + 32 for v in temps]
