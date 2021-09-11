@@ -7,9 +7,6 @@ import sqlite3
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-
-# test test
-
 TOKEN = 'RmlNdmZScvGusDeGMRjQGNMDdKxhKdJv'
 STATION_ID = 'GHCND:USW00023129'
 DATABASE_LOCATION = "sqlite:///WeatherData.db"
@@ -19,7 +16,7 @@ dates_prcp = []
 temps = []
 prcp = []
 
-for year in range(2016, 2018):
+for year in range(2016, 2017):
     year = str(year)
     print('retreiving ' + year + ' data')
 
@@ -30,20 +27,13 @@ for year in range(2016, 2018):
     # load the api response as a json
     d = json.loads(r.text)
 
- #   json.loads("[" +
-  #             f.read().replace("}\n{", "},\n{") +
-   #            "]")
-
     # get all items in the response which are average temperature readings
-  #  avg_temps = [item for item in d['results'] if item['datatype'] == 'TAVG']
+    avg_temps = [item for item in d['results'] if item['datatype'] == 'TAVG']
     # get the date field from all average temperature readings
-  #  dates_temp += [item['date'] for item in avg_temps]
+    dates_temp += [item['date'] for item in avg_temps]
     # get the actual average temperature from all average temperature readings
-  #  temps += [item['value'] for item in avg_temps]
+    temps += [item['value'] for item in avg_temps]
 
-    #initialize dataframe
-   # df_temp = pd.DataFrame()
+print(avg_temps[1])
 
-    #populate date and average temperature fields (cast string date to datetime and convert temperature from tenths of Celsius to Fahrenheit)
-   # df_temp['date'] = [datetime.strptime(d, "%Y-%m-%dT%H:%M:%S") for d in dates_temp]
-   # df_temp['avgTemp'] = [float(v)/10.0*1.8 + 32 for v in temps]
+
